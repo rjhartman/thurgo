@@ -35,7 +35,6 @@ client.on("interactionCreate", async (interaction) => {
       `Failed to run the command "${
         interaction.commandName
       }" by user ${humanReadableIdentifier(interaction.user)}`,
-      interaction.user,
       error
     );
   }

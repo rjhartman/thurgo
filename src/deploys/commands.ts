@@ -8,13 +8,13 @@ dotenv.config();
 
 const rest = new REST({ version: "9" }).setToken(process.env.DISCORD_TOKEN);
 
-const deploy = async () => {
+const deploy = async (guildID: string) => {
   logger.info(`Registering ${commands.length} slash commands with server.`);
   try {
     await rest.put(
       Routes.applicationGuildCommands(
         process.env.DISCORD_APPLICATION_ID,
-        process.env.DISCORD_GUILD_ID
+        guildID
       ),
       { body: commands.map(({ data }) => data.toJSON()) }
     );
@@ -24,6 +24,14 @@ const deploy = async () => {
   }
 };
 
-if (require.main === module) deploy();
+if (require.main === module) {
+  const guildId = process.argv.at(2);
+  if (guildId) {
+    deploy(guildId);
+  } else {
+    logger.error("You must specify a guildId.");
+    process.exit(1);
+  }
+}
 
 export default deploy;

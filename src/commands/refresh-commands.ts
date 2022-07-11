@@ -18,13 +18,16 @@ const command: ThurgoCommand = {
       }) asked to deploy commands.`
     );
 
-    if (
-      permissions &&
-      typeof permissions !== "string" &&
-      permissions.has("ADMINISTRATOR")
-    ) {
+    // This isn't really possible, since we'll always be calling this from a Guild.
+    // DMs should just be ignored.
+    if (interaction.guildId === null) return;
+
+    // Not sure why this would be possible, but just silently ignore.
+    if (!permissions || typeof permissions === "string") return;
+
+    if (permissions.has("ADMINISTRATOR")) {
       try {
-        await deployCommands();
+        await deployCommands(interaction.guildId);
         await interaction.reply("Commands deployed!");
         logger.info(`Deployed (${humanReadableIdentifier(interaction.user)})`);
       } catch (error) {
@@ -33,13 +36,13 @@ const command: ThurgoCommand = {
         );
       }
     } else {
-      await interaction.reply(
-        "You're trying to do something you shouldn't :eyes:"
-      );
       logger.debug(
         `${humanReadableIdentifier(
           interaction.user
         )} was not an administrator. Not deploying commands.`
+      );
+      await interaction.reply(
+        "You're trying to do something you shouldn't :eyes:"
       );
     }
   },
